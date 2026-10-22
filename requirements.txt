@@ -1,0 +1,22 @@
+# LLM integrations and workflow orchestration
+langchain
+langchain-ollama
+langgraph
+langchain-text-splitters
+ollama
+
+# Data validation and configuration
+pydantic
+pydantic-settings
+python-dotenv
+
+# API development
+fastapi
+uvicorn[standard]
+
+# Vector database
+qdrant-client
+
+# Development and testing
+ruff
+pytest
