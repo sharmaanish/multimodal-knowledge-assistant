@@ -50,4 +50,4 @@ def search_documents(
 
     finally:
         if owns_client:
-            client.closeI()
+            client.close()

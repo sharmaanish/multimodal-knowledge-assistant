@@ -1,0 +1,13 @@
+# Introduction to Retrieval-Augmented Generation (RAG)
+
+Retrieval-Augmented Generation (RAG) is a technique that combines information retrieval with text generation using a Large Language Model (LLM).
+
+A RAG system first searches a knowledge base for relevant document passages. It then provides those passages as context to the language model, which generates an answer grounded in the retrieved information.
+
+The main components of a RAG system are document ingestion, text splitting, embedding generation, vector storage, retrieval, and answer generation.
+
+Embeddings represent text as numerical vectors. A vector database such as Qdrant stores these vectors and helps retrieve semantically similar passages.
+
+Text splitting divides large documents into smaller chunks. This allows the retrieval system to find relevant information without processing an entire document for every question.
+
+RAG can reduce hallucinations by grounding responses in retrieved documents. However, it does not eliminate hallucinations completely, so answers should be evaluated for accuracy and relevance.
