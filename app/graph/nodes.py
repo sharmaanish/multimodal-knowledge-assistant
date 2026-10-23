@@ -55,15 +55,21 @@ def generate_answer_node(state: RAGState) -> dict:
     )
 
     prompt = f"""
-You are a knowledge assistant. Answer the question using only
-the provided document context.
+You are a precise knowledge assistant.
 
-Rules:
-- Do not use outside knowledge.
-- If the context does not answer the question, say so.
-- Cite supporting information using this exact format:
+Answer the user's question using only the provided document context.
+
+Instructions:
+- Answer the exact question directly and clearly.
+- Use only information supported by the document context.
+- Combine overlapping information and avoid repetition.
+- Do not add unnecessary disclaimers or commentary.
+- If the context does not contain enough information to answer,
+  clearly state that the available documents do not provide enough evidence.
+- Cite each factual claim using this exact format:
   [Source: document_path, Chunk: chunk_number]
-- Only cite sources and chunk numbers provided in the context.
+- Use only source paths and chunk numbers shown in the context.
+- Do not invent citations.
 
 Document context:
 {context}
@@ -73,7 +79,6 @@ Question:
 
 Answer:
 """
-
     response = get_llm().invoke(prompt)
     answer = response.content
 
@@ -81,9 +86,8 @@ Answer:
         answer = str(answer)
 
     # Keep only citations that refer to retrieved chunks.
-    citation_pattern = (
-        r"\[Source:\s*(.*?),\s*Chunk:\s*(\d+)\]"
-    )
+    citation_pattern = r"\[Source:\s*(.*?),\s*Chunk:\s*(\d+)\]"
+
 
     retrieved_sources = {
         (
@@ -93,27 +97,27 @@ Answer:
         for chunk in chunks
     }
 
-    valid_sources = []
+    # Build source references from the chunks retrieved by Qdrant.
+    sources = []
     seen_sources = set()
 
-    for source, chunk_index in re.findall(
-        citation_pattern, answer
-    ):
-        source = source.strip().replace("\\", "/")
+    for chunk in chunks:
+        source = str(chunk["source"]).replace("\\", "/")
+        chunk_index = int(chunk["chunk_index"])
         key = (source, chunk_index)
 
-        if key in retrieved_sources and key not in seen_sources:
+        if key not in seen_sources:
             seen_sources.add(key)
-            valid_sources.append(
+            sources.append(
                 {
                     "source": source,
-                    "chunk_index": int(chunk_index),
+                    "chunk_index": chunk_index,
                 }
             )
 
     return {
         "answer": answer,
-        "sources": valid_sources,
+        "sources": sources,
     }
 
 
